@@ -1118,9 +1118,13 @@ function closeCmsLogin() {
   document.getElementById('cms-login-error').style.display = 'none';
 }
 function attemptLogin() {
+  
   const u = document.getElementById('cms-username').value.trim();
   const p = document.getElementById('cms-password').value;
   const pwd = content.password || DEFAULT.password;
+  console.log(u);
+  console.log(p);
+  console.log(pwd);
   if (u === 'admin' && p === pwd) {
     closeCmsLogin();
     openCmsPanel();
