@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veridicus Medical Forensic Consultancy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-mid: #111827;
+    --navy-light: #1a2340;
+    --gold: #c8a96e;
+    --gold-light: #e8c98a;
+    --gold-pale: #f5e9d0;
+    --slate: #8a9ab5;
+    --white: #f4f2ee;
+    --text: #d0cdc8;
+    --border: rgba(200, 169, 110, 0.2);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--navy); color: var(--text); font-family: 'DM Mono', monospace; font-weight: 300; overflow-x: hidden; cursor: none; }
+
+  .cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s ease; }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(200,169,110,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform 0.25s ease, width 0.2s, height 0.2s, border-color 0.2s; }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 52px; height: 52px; border-color: var(--gold); }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; justify-content: space-between; padding: 28px 60px; backdrop-filter: blur(20px); background: rgba(10,15,30,0.8); border-bottom: 1px solid var(--border); animation: fadeDown 0.8s ease forwards; }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); text-decoration: none; }
+  .nav-logo span { color: var(--white); }
+  .nav-links { display: flex; gap: 44px; list-style: none; }
+  .nav-links a { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--slate); text-decoration: none; position: relative; transition: color 0.3s; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 0; height: 1px; background: var(--gold); transition: width 0.3s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--navy); background: var(--gold); border: none; padding: 12px 28px; cursor: none; transition: background 0.3s, transform 0.2s; text-decoration: none; display: inline-block; }
+  .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .nav-admin-btn { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(138,154,181,0.4); background: none; border: 1px solid rgba(138,154,181,0.15); padding: 8px 14px; cursor: none; transition: all 0.3s; margin-left: 12px; }
+  .nav-admin-btn:hover { color: var(--gold); border-color: var(--border); }
+
+  /* HERO */
+  #hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; position: relative; overflow: hidden; }
+  .hero-left { display: flex; flex-direction: column; justify-content: center; padding: 140px 60px 80px; position: relative; z-index: 2; }
+  .hero-eyebrow { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 36px; opacity: 0; animation: fadeUp 0.8s 0.4s ease forwards; display: flex; align-items: center; gap: 16px; }
+  .hero-eyebrow::before { content: ''; display: inline-block; width: 40px; height: 1px; background: var(--gold); }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.2rem, 5vw, 5.5rem); font-weight: 300; line-height: 1.05; color: var(--white); margin-bottom: 32px; opacity: 0; animation: fadeUp 0.9s 0.6s ease forwards; }
+  .hero-title em { font-style: italic; color: var(--gold); font-weight: 300; }
+  .hero-sub { font-size: 0.78rem; line-height: 1.9; color: var(--slate); max-width: 420px; margin-bottom: 52px; opacity: 0; animation: fadeUp 0.9s 0.8s ease forwards; }
+  .hero-actions { display: flex; gap: 20px; align-items: center; opacity: 0; animation: fadeUp 0.9s 1s ease forwards; }
+  .btn-primary { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--navy); background: var(--gold); border: none; padding: 16px 40px; text-decoration: none; display: inline-block; cursor: none; transition: background 0.3s, transform 0.2s; }
+  .btn-primary::after { content: '→'; margin-left: 12px; transition: transform 0.2s; display: inline-block; }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-primary:hover::after { transform: translateX(4px); }
+  .btn-ghost { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--slate); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: color 0.3s; cursor: none; }
+  .btn-ghost:hover { color: var(--gold); }
+  .hero-stats { position: absolute; bottom: 60px; left: 60px; display: flex; gap: 48px; opacity: 0; animation: fadeUp 0.9s 1.2s ease forwards; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 300; color: var(--gold); display: block; }
+  .stat-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--slate); display: block; margin-top: 4px; }
+  .hero-right { position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .geo-frame { position: relative; width: 420px; height: 520px; }
+  .geo-box { position: absolute; border: 1px solid var(--border); }
+  .geo-box:nth-child(1) { inset: 0; animation: rotateSlow 40s linear infinite; }
+  .geo-box:nth-child(2) { inset: 40px; animation: rotateSlow 30s linear infinite reverse; }
+  .geo-box:nth-child(3) { inset: 80px; border-color: rgba(200,169,110,0.4); }
+  .geo-center { position: absolute; inset: 100px; background: linear-gradient(135deg, var(--navy-light), var(--navy-mid)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; border: 1px solid var(--border); }
+  .geo-icon { width: 56px; height: 56px; margin-bottom: 20px; opacity: 0.9; }
+  .geo-tag { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: var(--gold-pale); line-height: 1.5; }
+  @keyframes rotateSlow { to { transform: rotate(360deg); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+  .hero-vertical-text { position: absolute; right: 0; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center center; font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(138,154,181,0.4); white-space: nowrap; opacity: 0; animation: fadeIn 1s 1.4s ease forwards; }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .hero-bg-gradient { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 50%, rgba(200,169,110,0.04) 0%, transparent 60%); pointer-events: none; }
+  .hero-bg-lines { position: absolute; inset: 0; background-image: linear-gradient(rgba(200,169,110,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,169,110,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+
+  .section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 0 60px; opacity: 0.3; }
+  section { padding: 100px 60px; }
+  .section-label { font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); max-width: 80px; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 3.5vw, 3.6rem); font-weight: 300; line-height: 1.15; color: var(--white); margin-bottom: 20px; }
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  /* ABOUT */
+  #about { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .about-text p { font-size: 0.8rem; line-height: 2; color: var(--slate); margin-bottom: 20px; }
+  .about-text p strong { color: var(--text); font-weight: 400; }
+  .about-right { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .about-card { background: var(--navy-light); padding: 36px 28px; border: 1px solid var(--border); position: relative; overflow: hidden; transition: border-color 0.3s; }
+  .about-card:hover { border-color: rgba(200,169,110,0.5); }
+  .about-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+  .about-card:hover::before { transform: scaleX(1); }
+  .about-card-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; color: rgba(200,169,110,0.2); font-weight: 300; display: block; margin-bottom: 12px; }
+  .about-card-title { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); margin-bottom: 8px; }
+  .about-card-text { font-size: 0.72rem; line-height: 1.7; color: var(--slate); }
+
+  /* SERVICES */
+  #services { background: var(--navy-mid); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .services-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 70px; }
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .service-card { background: var(--navy); padding: 48px 36px; border: 1px solid var(--border); position: relative; overflow: hidden; transition: background 0.4s; cursor: none; }
+  .service-card:hover { background: var(--navy-light); }
+  .service-icon { width: 44px; height: 44px; margin-bottom: 28px; color: var(--gold); }
+  .service-num { position: absolute; top: 20px; right: 24px; font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; color: rgba(200,169,110,0.07); line-height: 1; }
+  .service-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; color: var(--white); margin-bottom: 16px; line-height: 1.3; }
+  .service-desc { font-size: 0.73rem; line-height: 1.9; color: var(--slate); margin-bottom: 28px; }
+  .service-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--border); padding: 4px 10px; }
+  .service-arrow { position: absolute; bottom: 32px; right: 32px; width: 36px; height: 36px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1rem; opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s; }
+  .service-card:hover .service-arrow { opacity: 1; transform: translateY(0); }
+
+  /* PROCESS */
+  #process { background: var(--navy); }
+  .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 60px; position: relative; }
+  .process-grid::before { content: ''; position: absolute; top: 36px; left: 5%; right: 5%; height: 1px; background: linear-gradient(90deg, transparent, var(--border), var(--border), transparent); z-index: 0; }
+  .process-step { padding: 0 28px; position: relative; z-index: 1; }
+  .step-circle { width: 72px; height: 72px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--navy); margin-bottom: 28px; transition: border-color 0.3s, background 0.3s; }
+  .process-step:hover .step-circle { border-color: var(--gold); background: var(--navy-light); }
+  .step-num { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--gold); font-weight: 300; }
+  .step-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; color: var(--white); margin-bottom: 12px; }
+  .step-desc { font-size: 0.72rem; line-height: 1.8; color: var(--slate); }
+
+  /* TESTIMONIALS */
+  #testimonials { background: var(--navy-mid); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 60px; }
+  .testimonial-card { background: var(--navy); padding: 44px 36px; border: 1px solid var(--border); position: relative; }
+  .testimonial-card::before { content: '"'; font-family: 'Cormorant Garamond', serif; font-size: 8rem; color: rgba(200,169,110,0.08); position: absolute; top: -20px; left: 20px; line-height: 1; pointer-events: none; }
+  .testimonial-text { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; line-height: 1.75; color: var(--text); margin-bottom: 32px; }
+  .testimonial-divider { width: 40px; height: 1px; background: var(--gold); margin-bottom: 20px; opacity: 0.5; }
+  .testimonial-name { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); }
+  .testimonial-role { font-size: 0.65rem; color: var(--slate); margin-top: 4px; }
+
+  /* TEAM */
+  #team { background: var(--navy); }
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 60px; }
+  .team-card { background: var(--navy-light); border: 1px solid var(--border); overflow: hidden; position: relative; transition: border-color 0.3s; }
+  .team-card:hover { border-color: rgba(200,169,110,0.4); }
+  .team-avatar { width: 100%; height: 240px; background: linear-gradient(135deg, var(--navy-mid), var(--navy-light)); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .team-avatar-initials { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: rgba(200,169,110,0.3); }
+  .team-avatar::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, var(--navy-light), transparent); }
+  .team-info { padding: 28px 30px 32px; }
+  .team-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; color: var(--white); margin-bottom: 6px; }
+  .team-title { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .team-bio { font-size: 0.72rem; line-height: 1.8; color: var(--slate); }
+  .team-creds { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .cred { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--border); padding: 3px 8px; }
+
+  /* CONTACT */
+  #contact { background: var(--navy-mid); border-top: 1px solid var(--border); }
+  .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+  .contact-info p { font-size: 0.78rem; line-height: 2; color: var(--slate); margin-bottom: 40px; max-width: 400px; }
+  .contact-detail { margin-bottom: 20px; }
+  .contact-detail-label { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+  .contact-detail-value { font-size: 0.8rem; color: var(--text); }
+  .contact-form { display: flex; flex-direction: column; gap: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--slate); }
+  .form-input, .form-select, .form-textarea { background: var(--navy); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.75rem; padding: 14px 18px; outline: none; transition: border-color 0.3s; appearance: none; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(138,154,181,0.4); }
+  .form-textarea { resize: vertical; min-height: 120px; }
+  .form-select { cursor: none; }
+  .form-select option { background: var(--navy-mid); }
+  .form-submit { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--navy); background: var(--gold); border: none; padding: 18px 48px; cursor: none; transition: background 0.3s; align-self: flex-start; margin-top: 8px; }
+  .form-submit:hover { background: var(--gold-light); }
+  .confidentiality-note { font-size: 0.62rem; color: rgba(138,154,181,0.5); margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+  .confidentiality-note::before { content: '🔒'; font-size: 0.7rem; }
+
+  /* FOOTER */
+  footer { background: var(--navy); border-top: 1px solid var(--border); padding: 48px 60px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+  .footer-copy { font-size: 0.65rem; color: rgba(138,154,181,0.5); letter-spacing: 0.08em; }
+  .footer-links { display: flex; gap: 32px; list-style: none; }
+  .footer-links a { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.5); text-decoration: none; transition: color 0.3s; }
+  .footer-links a:hover { color: var(--gold); }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ════════════════════════════════════════
+     CMS STYLES
+  ════════════════════════════════════════ */
+
+  /* LOGIN OVERLAY */
+  #cms-login-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(10,15,30,0.97);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #cms-login-overlay.active { opacity: 1; pointer-events: all; }
+  .cms-login-box {
+    width: 420px;
+    border: 1px solid var(--border);
+    background: var(--navy-light);
+    padding: 52px 44px;
+    position: relative;
+  }
+  .cms-login-close {
+    position: absolute; top: 16px; right: 20px;
+    background: none; border: none; color: var(--slate);
+    font-size: 1.2rem; cursor: none; transition: color 0.2s;
+  }
+  .cms-login-close:hover { color: var(--gold); }
+  .cms-login-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 300;
+    color: var(--white); margin-bottom: 8px;
+  }
+  .cms-login-sub { font-size: 0.68rem; color: var(--slate); margin-bottom: 36px; letter-spacing: 0.05em; }
+  .cms-login-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--slate); display: block; margin-bottom: 8px; }
+  .cms-login-input {
+    width: 100%; background: var(--navy); border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.8rem;
+    padding: 14px 16px; outline: none; margin-bottom: 20px; transition: border-color 0.3s;
+  }
+  .cms-login-input:focus { border-color: var(--gold); }
+  .cms-login-btn {
+    width: 100%; background: var(--gold); border: none;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--navy); padding: 16px; cursor: none; transition: background 0.3s;
+  }
+  .cms-login-btn:hover { background: var(--gold-light); }
+  .cms-login-error { font-size: 0.65rem; color: #e07070; margin-top: 12px; display: none; }
+  .cms-hint { font-size: 0.6rem; color: rgba(138,154,181,0.35); margin-top: 20px; text-align: center; }
+
+  /* CMS PANEL */
+  #cms-panel {
+    position: fixed; top: 0; right: -520px; width: 500px; height: 100vh;
+    background: var(--navy-mid);
+    border-left: 1px solid var(--border);
+    z-index: 8000;
+    display: flex; flex-direction: column;
+    transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+  }
+  #cms-panel.open { right: 0; }
+
+  .cms-panel-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .cms-panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-weight: 300; color: var(--white);
+  }
+  .cms-panel-title span { color: var(--gold); font-style: italic; }
+  .cms-panel-actions { display: flex; gap: 10px; align-items: center; }
+  .cms-save-btn {
+    background: var(--gold); border: none;
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--navy); padding: 9px 20px; cursor: none; transition: background 0.2s;
+  }
+  .cms-save-btn:hover { background: var(--gold-light); }
+  .cms-save-btn.saved { background: #4a8c6a; color: #fff; }
+  .cms-reset-btn {
+    background: none; border: 1px solid rgba(224,112,112,0.3);
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(224,112,112,0.6); padding: 9px 16px; cursor: none; transition: all 0.2s;
+  }
+  .cms-reset-btn:hover { border-color: #e07070; color: #e07070; }
+  .cms-close-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--slate); font-size: 1rem; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: none; transition: all 0.2s;
+  }
+  .cms-close-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* TABS */
+  .cms-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    flex-shrink: 0; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .cms-tabs::-webkit-scrollbar { display: none; }
+  .cms-tab {
+    font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--slate); padding: 14px 20px; cursor: none;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: color 0.2s, border-color 0.2s;
+  }
+  .cms-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .cms-tab:hover { color: var(--text); }
+
+  /* PANEL BODY */
+  .cms-body {
+    flex: 1; overflow-y: auto; padding: 28px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .cms-body::-webkit-scrollbar { width: 4px; }
+  .cms-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .cms-tab-content { display: none; }
+  .cms-tab-content.active { display: block; }
+
+  /* CMS FIELDS */
+  .cms-field-group { margin-bottom: 28px; }
+  .cms-field-label {
+    font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 8px; display: block;
+  }
+  .cms-field-hint { font-size: 0.6rem; color: rgba(138,154,181,0.5); margin-bottom: 8px; display: block; }
+  .cms-input, .cms-textarea {
+    width: 100%; background: var(--navy); border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    padding: 12px 14px; outline: none; transition: border-color 0.2s;
+    resize: vertical;
+  }
+  .cms-input:focus, .cms-textarea:focus { border-color: var(--gold); }
+  .cms-textarea { min-height: 80px; }
+
+  .cms-section-divider {
+    height: 1px; background: var(--border); margin: 32px 0;
+  }
+  .cms-section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem; font-weight: 300; color: var(--white);
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* CARD EDITORS */
+  .cms-card-editor {
+    background: var(--navy); border: 1px solid var(--border);
+    padding: 20px; margin-bottom: 16px;
+    border-radius: 0;
+  }
+  .cms-card-editor-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .cms-card-editor-title {
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--slate);
+  }
+  .cms-card-toggle {
+    background: none; border: 1px solid var(--border);
+    color: var(--slate); font-size: 0.7rem;
+    width: 28px; height: 28px; cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .cms-card-toggle:hover { border-color: var(--gold); color: var(--gold); }
+  .cms-card-body { }
+  .cms-card-body.collapsed { display: none; }
+
+  /* INLINE EDIT HIGHLIGHT */
+  .cms-editable-active [data-cms] {
+    outline: 1px dashed rgba(200,169,110,0.3);
+    outline-offset: 2px;
+    cursor: text !important;
+    transition: outline-color 0.2s;
+  }
+  .cms-editable-active [data-cms]:hover {
+    outline-color: var(--gold);
+    background: rgba(200,169,110,0.04);
+  }
+  .cms-editable-active [data-cms]:focus {
+    outline: 1px solid var(--gold);
+    background: rgba(200,169,110,0.06);
+  }
+
+  /* STATUS BAR */
+  .cms-status-bar {
+    padding: 10px 28px;
+    border-top: 1px solid var(--border);
+    font-size: 0.58rem; letter-spacing: 0.1em;
+    color: var(--slate);
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .cms-status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4a8c6a;
+    display: inline-block;
+  }
+  .cms-status-dot.unsaved { background: var(--gold); }
+
+  /* FLOATING EDIT BADGE */
+  .cms-edit-badge {
+    position: fixed; bottom: 28px; left: 28px;
+    background: var(--navy-light); border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    z-index: 7000;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateY(10px);
+  }
+  #cms-panel.open ~ .cms-edit-badge,
+  .cms-edit-badge.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+  .cms-edit-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .cms-edit-badge-text { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--slate); }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 120px 24px 60px; }
+    .hero-stats { left: 24px; bottom: 40px; }
+    section { padding: 70px 24px; }
+    #about, .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+    .about-right { grid-template-columns: 1fr; }
+    .services-grid, .testimonials-grid, .team-grid { grid-template-columns: 1fr; }
+    .process-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    .process-grid::before { display: none; }
+    .services-header { flex-direction: column; gap: 20px; align-items: flex-start; }
+    footer { flex-direction: column; gap: 24px; text-align: center; }
+    .form-row { grid-template-columns: 1fr; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+    #cms-panel { width: 100%; right: -100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- CMS LOGIN OVERLAY -->
+<div id="cms-login-overlay">
+  <div class="cms-login-box">
+    <button class="cms-login-close" onclick="closeCmsLogin()">✕</button>
+    <div class="cms-login-title">Admin Access</div>
+    <div class="cms-login-sub">Enter your credentials to manage site content</div>
+    <label class="cms-login-label">Username</label>
+    <input class="cms-login-input" id="cms-username" type="text" placeholder="admin" autocomplete="off">
+    <label class="cms-login-label">Password</label>
+    <input class="cms-login-input" id="cms-password" type="password" placeholder="••••••••">
+    <button class="cms-login-btn" onclick="attemptLogin()">Access CMS →</button>
+    <div class="cms-login-error" id="cms-login-error">Invalid credentials. Please try again.</div>
+    <div class="cms-hint">Default: admin / veridicus2025</div>
+  </div>
+</div>
+
+<!-- CMS PANEL -->
+<div id="cms-panel">
+  <div class="cms-panel-header">
+    <div class="cms-panel-title">Veridicus <span>CMS</span></div>
+    <div class="cms-panel-actions">
+      <button class="cms-reset-btn" onclick="resetContent()">Reset</button>
+      <button class="cms-save-btn" id="cmsSaveBtn" onclick="saveContent()">Save Changes</button>
+      <button class="cms-close-btn" onclick="closeCmsPanel()">✕</button>
+    </div>
+  </div>
+  <div class="cms-tabs">
+    <button class="cms-tab active" onclick="switchTab('general')">General</button>
+    <button class="cms-tab" onclick="switchTab('hero')">Hero</button>
+    <button class="cms-tab" onclick="switchTab('services')">Services</button>
+    <button class="cms-tab" onclick="switchTab('team')">Team</button>
+    <button class="cms-tab" onclick="switchTab('testimonials')">Testimonials</button>
+    <button class="cms-tab" onclick="switchTab('contact')">Contact</button>
+  </div>
+  <div class="cms-body" id="cms-body">
+
+    <!-- GENERAL TAB -->
+    <div class="cms-tab-content active" id="tab-general">
+      <div class="cms-section-heading">Brand & Identity</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Firm Name</label>
+        <input class="cms-input" id="f-firm-name" placeholder="Veridicus">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Firm Abbreviation</label>
+        <input class="cms-input" id="f-firm-abbr" placeholder="MFC">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Tagline (geo-center)</label>
+        <input class="cms-input" id="f-tagline" placeholder="Where Medicine Meets Justice">
+      </div>
+      <div class="cms-section-divider"></div>
+      <div class="cms-section-heading">Statistics</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Stat 1 — Number</label>
+        <input class="cms-input" id="f-stat1-num" placeholder="340+">
+        <label class="cms-field-label" style="margin-top:8px">Stat 1 — Label</label>
+        <input class="cms-input" id="f-stat1-label" placeholder="Cases Resolved">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Stat 2 — Number</label>
+        <input class="cms-input" id="f-stat2-num" placeholder="28yr">
+        <label class="cms-field-label" style="margin-top:8px">Stat 2 — Label</label>
+        <input class="cms-input" id="f-stat2-label" placeholder="Combined Experience">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Stat 3 — Number</label>
+        <input class="cms-input" id="f-stat3-num" placeholder="97%">
+        <label class="cms-field-label" style="margin-top:8px">Stat 3 — Label</label>
+        <input class="cms-input" id="f-stat3-label" placeholder="Expert Retention Rate">
+      </div>
+      <div class="cms-section-divider"></div>
+      <div class="cms-section-heading">Footer</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Copyright Text</label>
+        <input class="cms-input" id="f-footer-copy" placeholder="© 2025 Veridicus Medical Forensic Consultancy...">
+      </div>
+    </div>
+
+    <!-- HERO TAB -->
+    <div class="cms-tab-content" id="tab-hero">
+      <div class="cms-section-heading">Hero Section</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Eyebrow Text</label>
+        <input class="cms-input" id="f-hero-eyebrow" placeholder="Medical Forensic Consultancy">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Headline Line 1</label>
+        <input class="cms-input" id="f-hero-h1" placeholder="Expert Counsel">
+        <label class="cms-field-label" style="margin-top:8px">Headline Line 2 (italic/gold)</label>
+        <input class="cms-input" id="f-hero-h2" placeholder="Healthcare">
+        <label class="cms-field-label" style="margin-top:8px">Headline Line 3</label>
+        <input class="cms-input" id="f-hero-h3" placeholder="Legal Cases">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Subheading Paragraph</label>
+        <textarea class="cms-textarea" id="f-hero-sub"></textarea>
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">CTA Button Text</label>
+        <input class="cms-input" id="f-hero-cta" placeholder="Schedule a Consultation">
+      </div>
+      <div class="cms-section-divider"></div>
+      <div class="cms-section-heading">About Section</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">About Paragraph 1</label>
+        <textarea class="cms-textarea" id="f-about-p1"></textarea>
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">About Paragraph 2</label>
+        <textarea class="cms-textarea" id="f-about-p2"></textarea>
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">About Paragraph 3</label>
+        <textarea class="cms-textarea" id="f-about-p3"></textarea>
+      </div>
+    </div>
+
+    <!-- SERVICES TAB -->
+    <div class="cms-tab-content" id="tab-services">
+      <div class="cms-section-heading">Services</div>
+      <div id="services-editor"></div>
+    </div>
+
+    <!-- TEAM TAB -->
+    <div class="cms-tab-content" id="tab-team">
+      <div class="cms-section-heading">Team Members</div>
+      <div id="team-editor"></div>
+    </div>
+
+    <!-- TESTIMONIALS TAB -->
+    <div class="cms-tab-content" id="tab-testimonials">
+      <div class="cms-section-heading">Client Testimonials</div>
+      <div id="testimonials-editor"></div>
+    </div>
+
+    <!-- CONTACT TAB -->
+    <div class="cms-tab-content" id="tab-contact">
+      <div class="cms-section-heading">Contact Details</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Phone</label>
+        <input class="cms-input" id="f-contact-phone" placeholder="+1 (617) 440-9200">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Email</label>
+        <input class="cms-input" id="f-contact-email" placeholder="consult@veridicus-mfc.com">
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Office Address</label>
+        <textarea class="cms-textarea" id="f-contact-address" style="min-height:60px"></textarea>
+      </div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">Office Hours</label>
+        <textarea class="cms-textarea" id="f-contact-hours" style="min-height:60px"></textarea>
+      </div>
+      <div class="cms-section-divider"></div>
+      <div class="cms-section-heading">Admin Password</div>
+      <div class="cms-field-group">
+        <label class="cms-field-label">New Password</label>
+        <span class="cms-field-hint">Leave blank to keep current password</span>
+        <input class="cms-input" id="f-new-password" type="password" placeholder="Enter new password…">
+      </div>
+    </div>
+
+  </div>
+  <div class="cms-status-bar">
+    <span class="cms-status-dot" id="cms-status-dot"></span>
+    <span id="cms-status-text">All changes saved</span>
+  </div>
+</div>
+
+<div class="cms-edit-badge" id="cms-edit-badge">
+  <span class="cms-edit-badge-dot"></span>
+  <span class="cms-edit-badge-text">CMS Active — Editing Mode</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" id="nav-logo-el">Veridicus <span id="nav-abbr-el">MFC</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#team">Experts</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:8px">
+    <a href="#contact" class="nav-cta" id="nav-cta-el">Consult Now</a>
+    <button class="nav-admin-btn" onclick="openCmsLogin()">⚙ Admin</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-gradient"></div>
+  <div class="hero-bg-lines"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow" id="hero-eyebrow-el">Medical Forensic Consultancy</div>
+    <h1 class="hero-title" id="hero-title-el">
+      <span id="hero-h1-el">Expert Counsel</span><br>
+      for <em id="hero-h2-el">Healthcare</em><br>
+      <span id="hero-h3-el">Legal Cases</span>
+    </h1>
+    <p class="hero-sub" id="hero-sub-el">Veridicus provides authoritative medical forensic expertise to attorneys, plaintiffs, and insurers navigating the complexities of healthcare-related crimes, malpractice, and fraud.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary" id="hero-cta-el">Schedule a Consultation</a>
+      <a href="#services" class="btn-ghost">View Services ↓</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <span class="stat-num" id="stat1-num-el">340+</span>
+        <span class="stat-label" id="stat1-label-el">Cases Resolved</span>
+      </div>
+      <div>
+        <span class="stat-num" id="stat2-num-el">28yr</span>
+        <span class="stat-label" id="stat2-label-el">Combined Experience</span>
+      </div>
+      <div>
+        <span class="stat-num" id="stat3-num-el">97%</span>
+        <span class="stat-label" id="stat3-label-el">Expert Retention Rate</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="geo-frame">
+      <div class="geo-box"></div>
+      <div class="geo-box"></div>
+      <div class="geo-box"></div>
+      <div class="geo-center">
+        <svg class="geo-icon" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="#c8a96e" stroke-width="1" opacity="0.4"/>
+          <path d="M24 10 L24 38 M10 24 L38 24" stroke="#c8a96e" stroke-width="1" opacity="0.6"/>
+          <circle cx="24" cy="24" r="6" stroke="#c8a96e" stroke-width="1.5"/>
+          <path d="M20 20 L28 28 M28 20 L20 28" stroke="#c8a96e" stroke-width="1" opacity="0.5"/>
+        </svg>
+        <span class="geo-tag" id="geo-tag-el">Where Medicine<br>Meets Justice</span>
+      </div>
+    </div>
+    <div class="hero-vertical-text">Forensic · Medical · Legal · Expertise</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-text">
+    <div class="section-label">Who We Are</div>
+    <h2 class="section-title">Bridging the Gap Between <em>Medicine</em> & the Law</h2>
+    <p id="about-p1-el">Veridicus Medical Forensic Consultancy was founded by board-certified physicians and forensic specialists committed to delivering <strong>objective, evidence-based expert opinion</strong> in complex healthcare litigation.</p>
+    <p id="about-p2-el">We work exclusively with legal professionals — plaintiff and defense attorneys, insurance carriers, and regulatory bodies — providing the <strong>clinical clarity</strong> needed to build, challenge, or settle cases involving healthcare crimes and professional misconduct.</p>
+    <p id="about-p3-el">Our consultants have testified in state and federal courts across the country, reviewed thousands of medical records, and contributed to landmark healthcare fraud prosecutions.</p>
+  </div>
+  <div class="about-right reveal">
+    <div class="about-card"><span class="about-card-num">01</span><div class="about-card-title">Objective Analysis</div><div class="about-card-text">Independent, unbiased review free from institutional conflicts or pressures.</div></div>
+    <div class="about-card"><span class="about-card-num">02</span><div class="about-card-title">Board-Certified Experts</div><div class="about-card-text">Practicing clinicians with active licensure and decades of specialty experience.</div></div>
+    <div class="about-card"><span class="about-card-num">03</span><div class="about-card-title">Court-Ready Reports</div><div class="about-card-text">Comprehensive written opinions formatted for legal admissibility and clarity.</div></div>
+    <div class="about-card"><span class="about-card-num">04</span><div class="about-card-title">Rapid Turnaround</div><div class="about-card-text">Expedited review processes to meet discovery and filing deadlines.</div></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header">
+    <div>
+      <div class="section-label">What We Do</div>
+      <h2 class="section-title">Forensic Services<br>for <em>Healthcare Crimes</em></h2>
+    </div>
+    <a href="#contact" class="btn-ghost" style="align-self:flex-end;">All Services →</a>
+  </div>
+  <div class="services-grid" id="services-grid"></div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-label">How It Works</div>
+  <h2 class="section-title">Our <em>Engagement</em> Process</h2>
+  <div class="process-grid">
+    <div class="process-step reveal"><div class="step-circle"><span class="step-num">I</span></div><h3 class="step-title">Initial Consultation</h3><p class="step-desc">A confidential call with our intake team to assess case type, jurisdiction, timeline, and expert specialty requirements. No charge for initial screening.</p></div>
+    <div class="process-step reveal reveal-delay-1"><div class="step-circle"><span class="step-num">II</span></div><h3 class="step-title">Expert Matching</h3><p class="step-desc">We identify the optimal specialist from our network — matching by clinical subspecialty, geographic proximity to jurisdiction, and litigation experience.</p></div>
+    <div class="process-step reveal reveal-delay-2"><div class="step-circle"><span class="step-num">III</span></div><h3 class="step-title">Records Review</h3><p class="step-desc">Our expert conducts a thorough, systematic review of all relevant medical documentation, imaging studies, and records under strict confidentiality protocols.</p></div>
+    <div class="process-step reveal reveal-delay-3"><div class="step-circle"><span class="step-num">IV</span></div><h3 class="step-title">Deliverable & Support</h3><p class="step-desc">A comprehensive written opinion is delivered in court-ready format. Our consultants remain available for deposition preparation, rebuttal, and trial support.</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-label">Client Testimonials</div>
+  <h2 class="section-title">Trusted by <em>Legal Professionals</em></h2>
+  <div class="testimonials-grid" id="testimonials-grid"></div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-label">Our Experts</div>
+  <h2 class="section-title">Meet the <em>Consultants</em></h2>
+  <div class="team-grid" id="team-grid"></div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-info">
+      <div class="section-label">Get In Touch</div>
+      <h2 class="section-title">Begin Your <em>Consultation</em></h2>
+      <p>All inquiries are handled with complete confidentiality. Initial consultations are complimentary and are subject to conflict-of-interest screening.</p>
+      <div class="contact-detail"><div class="contact-detail-label">Phone</div><div class="contact-detail-value" id="contact-phone-el">+1 (617) 440-9200</div></div>
+      <div class="contact-detail"><div class="contact-detail-label">Email</div><div class="contact-detail-value" id="contact-email-el">consult@veridicus-mfc.com</div></div>
+      <div class="contact-detail"><div class="contact-detail-label">Office</div><div class="contact-detail-value" id="contact-address-el">One Federal Street, Suite 1900<br>Boston, MA 02110</div></div>
+      <div class="contact-detail"><div class="contact-detail-label">Hours</div><div class="contact-detail-value" id="contact-hours-el">Monday – Friday · 8:00 AM – 6:00 PM EST<br>After-hours by arrangement</div></div>
+    </div>
+    <div class="reveal">
+      <form class="contact-form" onsubmit="handleSubmit(event)">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" placeholder="Jane" required></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" placeholder="Smith" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Firm / Organization</label><input class="form-input" type="text" placeholder="Smith & Associates LLP"></div>
+        <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" placeholder="j.smith@lawfirm.com" required></div>
+        <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" type="tel" placeholder="+1 (555) 000-0000"></div>
+        <div class="form-group">
+          <label class="form-label">Case Type</label>
+          <select class="form-select">
+            <option value="">Select a category…</option>
+            <option>Medical Malpractice — Plaintiff</option>
+            <option>Medical Malpractice — Defense</option>
+            <option>Healthcare Fraud / Medicare-Medicaid</option>
+            <option>Prescription Drug Diversion</option>
+            <option>Regulatory / Licensing Defense</option>
+            <option>Hospital Negligence</option>
+            <option>Insurance Coverage Dispute</option>
+            <option>Life Care Planning</option>
+            <option>Other Healthcare Crime</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Brief Case Summary</label><textarea class="form-textarea" placeholder="Briefly describe the matter, jurisdiction, and any timeline constraints…"></textarea></div>
+        <button type="submit" class="form-submit">Submit Inquiry →</button>
+        <div class="confidentiality-note">All communications are strictly confidential and attorney-client privilege applies.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo" id="footer-logo-el">Veridicus MFC</div>
+  <p class="footer-copy" id="footer-copy-el">© 2025 Veridicus Medical Forensic Consultancy. All rights reserved.</p>
+  <ul class="footer-links">
+    <li><a href="#">Privacy Policy</a></li>
+    <li><a href="#">Terms of Engagement</a></li>
+    <li><a href="#">Disclaimer</a></li>
+  </ul>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+// DEFAULT CONTENT
+// ════════════════════════════════════════
+const DEFAULT = {
+  password: 'veridicus2025',
+  firmName: 'Veridicus',
+  firmAbbr: 'MFC',
+  tagline: 'Where Medicine\nMeets Justice',
+  stat1Num: '340+', stat1Label: 'Cases Resolved',
+  stat2Num: '28yr', stat2Label: 'Combined Experience',
+  stat3Num: '97%',  stat3Label: 'Expert Retention Rate',
+  footerCopy: '© 2025 Veridicus Medical Forensic Consultancy. All rights reserved.',
+  heroEyebrow: 'Medical Forensic Consultancy',
+  heroH1: 'Expert Counsel', heroH2: 'Healthcare', heroH3: 'Legal Cases',
+  heroSub: 'Veridicus provides authoritative medical forensic expertise to attorneys, plaintiffs, and insurers navigating the complexities of healthcare-related crimes, malpractice, and fraud.',
+  heroCta: 'Schedule a Consultation',
+  aboutP1: 'Veridicus Medical Forensic Consultancy was founded by board-certified physicians and forensic specialists committed to delivering objective, evidence-based expert opinion in complex healthcare litigation.',
+  aboutP2: 'We work exclusively with legal professionals — plaintiff and defense attorneys, insurance carriers, and regulatory bodies — providing the clinical clarity needed to build, challenge, or settle cases involving healthcare crimes and professional misconduct.',
+  aboutP3: 'Our consultants have testified in state and federal courts across the country, reviewed thousands of medical records, and contributed to landmark healthcare fraud prosecutions.',
+  contactPhone: '+1 (617) 440-9200',
+  contactEmail: 'consult@veridicus-mfc.com',
+  contactAddress: 'One Federal Street, Suite 1900\nBoston, MA 02110',
+  contactHours: 'Monday – Friday · 8:00 AM – 6:00 PM EST\nAfter-hours by arrangement',
+  services: [
+    { title: 'Medical Record Review', desc: 'Thorough chronological analysis of patient records, imaging, lab results, and treatment notes to identify deviations from accepted standards of care or evidence of fraud.', tags: 'Chart Analysis, Timeline Construction, Coding Review' },
+    { title: 'Expert Witness Testimony', desc: 'Credible, well-prepared expert witnesses for deposition and trial. Our consultants communicate complex medical concepts in clear, accessible language for judges and juries.', tags: 'Deposition Prep, Trial Testimony, Rebuttal Experts' },
+    { title: 'Healthcare Fraud Investigation', desc: 'Detection and documentation of billing fraud, upcoding, unbundling, kickback schemes, and prescription fraud through systematic clinical and administrative record analysis.', tags: 'Billing Audits, Medicare/Medicaid, Prescription Analysis' },
+    { title: 'Malpractice Case Analysis', desc: 'Comprehensive standard-of-care assessments for surgical errors, misdiagnosis, medication errors, anesthesia incidents, and failure-to-treat cases across all medical specialties.', tags: 'Standard of Care, Causation Analysis, Damages Assessment' },
+    { title: 'Regulatory & Licensing Defense', desc: 'Strategic medical expertise supporting physicians and facilities facing board investigations, DEA audits, hospital privilege disputes, and regulatory compliance proceedings.', tags: 'Board Defense, DEA Matters, Credentialing' },
+    { title: 'Life Care Planning', desc: 'Detailed projections of future medical costs, rehabilitation needs, and long-term care requirements for catastrophic injury and chronic condition cases.', tags: 'Cost Projections, Rehabilitation, Long-term Care' }
+  ],
+  team: [
+    { name: 'Dr. Jonathan R. Ashford', title: 'Founding Director · Emergency Medicine', initials: 'JR', bio: 'Board-certified emergency physician with 24 years of clinical practice. Former medical examiner consultant and federal healthcare fraud task force advisor. Has testified in over 180 cases.', creds: 'MD, Johns Hopkins, FACEP, DABFM' },
+    { name: 'Dr. Miriam K. Oduya', title: 'Senior Consultant · Surgery & Oncology', initials: 'MK', bio: 'General and oncologic surgeon with expertise in surgical complications, cancer staging disputes, and informed consent failures. Recognized authority on operative standard-of-care analysis.', creds: 'MD, UCSF, FACS, MHL' },
+    { name: 'Dr. David L. Steinberg', title: 'Consultant · Psychiatry & Behavioral Health', initials: 'DL', bio: 'Forensic psychiatrist specializing in competency evaluation, mental health treatment disputes, and prescription drug diversion cases. Extensive DEA expert witness experience.', creds: 'MD, Yale, DFAPA, ABFM Certified' }
+  ],
+  testimonials: [
+    { text: 'Veridicus provided the most rigorous and credible expert analysis I have encountered in 22 years of medical malpractice litigation. Their written opinion was instrumental in securing a significant settlement for our client.', name: 'Margaret T. Holloway, Esq.', role: 'Partner, Holloway & Crane LLP — Boston, MA' },
+    { text: 'When we needed a billing fraud expert with deep Medicare knowledge, Veridicus delivered a specialist whose testimony was both technically airtight and remarkably clear to the jury. The verdict spoke for itself.', name: 'Raymond J. Chávez, Esq.', role: 'Assistant U.S. Attorney, Southern District of Florida' },
+    { text: 'As a healthcare insurer, we rely on Veridicus for complex coverage dispute reviews. Their turnaround time and the quality of analysis has consistently exceeded expectations across dozens of engagements.', name: 'Dr. Sandra K. Osei', role: 'VP of Clinical Operations, Meridian Health Insurance' }
+  ]
+};
+
+// ════════════════════════════════════════
+// CONTENT STATE
+// ════════════════════════════════════════
+let content = {};
+let unsaved = false;
+
+function loadContent() {
+  try {
+    const saved = localStorage.getItem('veridicus_cms_content');
+    content = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT));
+  } catch(e) {
+    content = JSON.parse(JSON.stringify(DEFAULT));
+  }
+}
+
+function saveContent() {
+  // password update
+  const np = document.getElementById('f-new-password').value.trim();
+  if (np) content.password = np;
+
+  localStorage.setItem('veridicus_cms_content', JSON.stringify(content));
+  const btn = document.getElementById('cmsSaveBtn');
+  btn.textContent = 'Saved ✓'; btn.classList.add('saved');
+  setStatus(false);
+  setTimeout(() => { btn.textContent = 'Save Changes'; btn.classList.remove('saved'); }, 2500);
+}
+
+function resetContent() {
+  if (!confirm('Reset all content to defaults? This cannot be undone.')) return;
+  localStorage.removeItem('veridicus_cms_content');
+  content = JSON.parse(JSON.stringify(DEFAULT));
+  renderSite();
+  populateCmsForms();
+  setStatus(false);
+}
+
+function setStatus(dirty) {
+  unsaved = dirty;
+  const dot = document.getElementById('cms-status-dot');
+  const txt = document.getElementById('cms-status-text');
+  if (dirty) { dot.classList.add('unsaved'); txt.textContent = 'Unsaved changes'; }
+  else { dot.classList.remove('unsaved'); txt.textContent = 'All changes saved'; }
+}
+
+// ════════════════════════════════════════
+// RENDER SITE FROM CONTENT
+// ════════════════════════════════════════
+function renderSite() {
+  const c = content;
+  setText('nav-logo-el', c.firmName + ' ');
+  setText('nav-abbr-el', c.firmAbbr);
+  setText('footer-logo-el', c.firmName + ' ' + c.firmAbbr);
+  setText('footer-copy-el', c.footerCopy);
+  const geoTag = document.getElementById('geo-tag-el');
+  if (geoTag) geoTag.innerHTML = c.tagline.replace('\n','<br>');
+
+  setText('stat1-num-el', c.stat1Num); setText('stat1-label-el', c.stat1Label);
+  setText('stat2-num-el', c.stat2Num); setText('stat2-label-el', c.stat2Label);
+  setText('stat3-num-el', c.stat3Num); setText('stat3-label-el', c.stat3Label);
+
+  setText('hero-eyebrow-el', c.heroEyebrow);
+  setText('hero-h1-el', c.heroH1);
+  setText('hero-h2-el', c.heroH2);
+  setText('hero-h3-el', c.heroH3);
+  setText('hero-sub-el', c.heroSub);
+  setText('hero-cta-el', c.heroCta);
+  setText('nav-cta-el', c.heroCta);
+
+  setText('about-p1-el', c.aboutP1);
+  setText('about-p2-el', c.aboutP2);
+  setText('about-p3-el', c.aboutP3);
+
+  setText('contact-phone-el', c.contactPhone);
+  setText('contact-email-el', c.contactEmail);
+  setHTML('contact-address-el', c.contactAddress.replace('\n','<br>'));
+  setHTML('contact-hours-el', c.contactHours.replace('\n','<br>'));
+
+  renderServices();
+  renderTeam();
+  renderTestimonials();
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function setHTML(id, val) { const el = document.getElementById(id); if (el) el.innerHTML = val; }
+
+const SERVICE_ICONS = [
+  `<svg viewBox="0 0 44 44" fill="none"><rect x="6" y="4" width="32" height="36" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M14 14h16M14 20h16M14 26h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="32" cy="34" r="6" fill="#0a0f1e" stroke="currentColor" stroke-width="1.2"/><path d="M30 34h4M32 32v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 44 44" fill="none"><path d="M22 6L8 12v14c0 8 6 14 14 16 8-2 14-8 14-16V12L22 6z" stroke="currentColor" stroke-width="1.5"/><path d="M16 22l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  `<svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="16" stroke="currentColor" stroke-width="1.5"/><path d="M22 10v12l7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="22" cy="22" r="3" fill="currentColor" opacity="0.4"/></svg>`,
+  `<svg viewBox="0 0 44 44" fill="none"><path d="M8 36L20 24M36 8L24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="34" r="4" stroke="currentColor" stroke-width="1.2"/><circle cx="34" cy="10" r="4" stroke="currentColor" stroke-width="1.2"/></svg>`,
+  `<svg viewBox="0 0 44 44" fill="none"><rect x="10" y="8" width="24" height="30" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M16 16h12M16 22h12M16 28h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 44 44" fill="none"><path d="M22 4l4 8h9l-7 6 3 9-9-5-9 5 3-9-7-6h9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="22" cy="34" r="6" fill="#0a0f1e" stroke="currentColor" stroke-width="1.2"/><path d="M19 34l2 2 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`
+];
+
+function renderServices() {
+  const grid = document.getElementById('services-grid');
+  if (!grid) return;
+  const nums = ['01','02','03','04','05','06'];
+  grid.innerHTML = content.services.map((s, i) => `
+    <div class="service-card reveal${i>0?' reveal-delay-'+Math.min(i%3,2):''}">
+      <span class="service-num">${nums[i]||'0'+(i+1)}</span>
+      <div class="service-icon">${SERVICE_ICONS[i % SERVICE_ICONS.length]}</div>
+      <h3 class="service-title">${s.title}</h3>
+      <p class="service-desc">${s.desc}</p>
+      <div class="service-tags">${s.tags.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>
+      <div class="service-arrow">→</div>
+    </div>`).join('');
+  reObserve();
+}
+
+function renderTeam() {
+  const grid = document.getElementById('team-grid');
+  if (!grid) return;
+  grid.innerHTML = content.team.map((m, i) => `
+    <div class="team-card reveal${i>0?' reveal-delay-'+Math.min(i,2):''}">
+      <div class="team-avatar"><span class="team-avatar-initials">${m.initials}</span></div>
+      <div class="team-info">
+        <div class="team-name">${m.name}</div>
+        <div class="team-title">${m.title}</div>
+        <p class="team-bio">${m.bio}</p>
+        <div class="team-creds">${m.creds.split(',').map(c=>`<span class="cred">${c.trim()}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+  reObserve();
+}
+
+function renderTestimonials() {
+  const grid = document.getElementById('testimonials-grid');
+  if (!grid) return;
+  grid.innerHTML = content.testimonials.map((t, i) => `
+    <div class="testimonial-card reveal${i>0?' reveal-delay-'+Math.min(i,2):''}">
+      <p class="testimonial-text">${t.text}</p>
+      <div class="testimonial-divider"></div>
+      <div class="testimonial-name">${t.name}</div>
+      <div class="testimonial-role">${t.role}</div>
+    </div>`).join('');
+  reObserve();
+}
+
+// ════════════════════════════════════════
+// POPULATE CMS FORM FIELDS
+// ════════════════════════════════════════
+function populateCmsForms() {
+  const c = content;
+  setField('f-firm-name', c.firmName);
+  setField('f-firm-abbr', c.firmAbbr);
+  setField('f-tagline', c.tagline);
+  setField('f-stat1-num', c.stat1Num); setField('f-stat1-label', c.stat1Label);
+  setField('f-stat2-num', c.stat2Num); setField('f-stat2-label', c.stat2Label);
+  setField('f-stat3-num', c.stat3Num); setField('f-stat3-label', c.stat3Label);
+  setField('f-footer-copy', c.footerCopy);
+  setField('f-hero-eyebrow', c.heroEyebrow);
+  setField('f-hero-h1', c.heroH1); setField('f-hero-h2', c.heroH2); setField('f-hero-h3', c.heroH3);
+  setField('f-hero-sub', c.heroSub);
+  setField('f-hero-cta', c.heroCta);
+  setField('f-about-p1', c.aboutP1);
+  setField('f-about-p2', c.aboutP2);
+  setField('f-about-p3', c.aboutP3);
+  setField('f-contact-phone', c.contactPhone);
+  setField('f-contact-email', c.contactEmail);
+  setField('f-contact-address', c.contactAddress);
+  setField('f-contact-hours', c.contactHours);
+
+  // Dynamic: services
+  const se = document.getElementById('services-editor');
+  se.innerHTML = c.services.map((s, i) => `
+    <div class="cms-card-editor">
+      <div class="cms-card-editor-header">
+        <span class="cms-card-editor-title">Service ${i+1}</span>
+        <button class="cms-card-toggle" onclick="toggleCard(this)">−</button>
+      </div>
+      <div class="cms-card-body">
+        <div class="cms-field-group"><label class="cms-field-label">Title</label>
+          <input class="cms-input" data-svc="${i}" data-key="title" value="${esc(s.title)}" oninput="updateService(this)"></div>
+        <div class="cms-field-group"><label class="cms-field-label">Description</label>
+          <textarea class="cms-textarea" data-svc="${i}" data-key="desc" oninput="updateService(this)">${esc(s.desc)}</textarea></div>
+        <div class="cms-field-group"><label class="cms-field-label">Tags (comma separated)</label>
+          <input class="cms-input" data-svc="${i}" data-key="tags" value="${esc(s.tags)}" oninput="updateService(this)"></div>
+      </div>
+    </div>`).join('');
+
+  // Dynamic: team
+  const te = document.getElementById('team-editor');
+  te.innerHTML = c.team.map((m, i) => `
+    <div class="cms-card-editor">
+      <div class="cms-card-editor-header">
+        <span class="cms-card-editor-title">Member ${i+1} — ${m.name}</span>
+        <button class="cms-card-toggle" onclick="toggleCard(this)">−</button>
+      </div>
+      <div class="cms-card-body">
+        <div class="cms-field-group"><label class="cms-field-label">Full Name</label>
+          <input class="cms-input" data-tm="${i}" data-key="name" value="${esc(m.name)}" oninput="updateTeam(this)"></div>
+        <div class="cms-field-group"><label class="cms-field-label">Title / Specialty</label>
+          <input class="cms-input" data-tm="${i}" data-key="title" value="${esc(m.title)}" oninput="updateTeam(this)"></div>
+        <div class="cms-field-group"><label class="cms-field-label">Initials (2 chars)</label>
+          <input class="cms-input" data-tm="${i}" data-key="initials" value="${esc(m.initials)}" oninput="updateTeam(this)" maxlength="3"></div>
+        <div class="cms-field-group"><label class="cms-field-label">Bio</label>
+          <textarea class="cms-textarea" data-tm="${i}" data-key="bio" oninput="updateTeam(this)">${esc(m.bio)}</textarea></div>
+        <div class="cms-field-group"><label class="cms-field-label">Credentials (comma separated)</label>
+          <input class="cms-input" data-tm="${i}" data-key="creds" value="${esc(m.creds)}" oninput="updateTeam(this)"></div>
+      </div>
+    </div>`).join('');
+
+  // Dynamic: testimonials
+  const tse = document.getElementById('testimonials-editor');
+  tse.innerHTML = c.testimonials.map((t, i) => `
+    <div class="cms-card-editor">
+      <div class="cms-card-editor-header">
+        <span class="cms-card-editor-title">Testimonial ${i+1}</span>
+        <button class="cms-card-toggle" onclick="toggleCard(this)">−</button>
+      </div>
+      <div class="cms-card-body">
+        <div class="cms-field-group"><label class="cms-field-label">Quote</label>
+          <textarea class="cms-textarea" data-ts="${i}" data-key="text" oninput="updateTestimonial(this)">${esc(t.text)}</textarea></div>
+        <div class="cms-field-group"><label class="cms-field-label">Client Name</label>
+          <input class="cms-input" data-ts="${i}" data-key="name" value="${esc(t.name)}" oninput="updateTestimonial(this)"></div>
+        <div class="cms-field-group"><label class="cms-field-label">Role / Firm</label>
+          <input class="cms-input" data-ts="${i}" data-key="role" value="${esc(t.role)}" oninput="updateTestimonial(this)"></div>
+      </div>
+    </div>`).join('');
+
+  // Wire up simple field live sync
+  wireLiveFields();
+}
+
+function setField(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function wireLiveFields() {
+  const map = {
+    'f-firm-name':'firmName','f-firm-abbr':'firmAbbr','f-tagline':'tagline',
+    'f-stat1-num':'stat1Num','f-stat1-label':'stat1Label',
+    'f-stat2-num':'stat2Num','f-stat2-label':'stat2Label',
+    'f-stat3-num':'stat3Num','f-stat3-label':'stat3Label',
+    'f-footer-copy':'footerCopy',
+    'f-hero-eyebrow':'heroEyebrow','f-hero-h1':'heroH1','f-hero-h2':'heroH2','f-hero-h3':'heroH3',
+    'f-hero-sub':'heroSub','f-hero-cta':'heroCta',
+    'f-about-p1':'aboutP1','f-about-p2':'aboutP2','f-about-p3':'aboutP3',
+    'f-contact-phone':'contactPhone','f-contact-email':'contactEmail',
+    'f-contact-address':'contactAddress','f-contact-hours':'contactHours'
+  };
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { content[key] = el.value; renderSite(); setStatus(true); });
+  });
+}
+
+function updateService(el) {
+  const i = +el.dataset.svc, key = el.dataset.key;
+  content.services[i][key] = el.value;
+  renderServices(); setStatus(true);
+}
+function updateTeam(el) {
+  const i = +el.dataset.tm, key = el.dataset.key;
+  content.team[i][key] = el.value;
+  renderTeam(); setStatus(true);
+}
+function updateTestimonial(el) {
+  const i = +el.dataset.ts, key = el.dataset.key;
+  content.testimonials[i][key] = el.value;
+  renderTestimonials(); setStatus(true);
+}
+
+function toggleCard(btn) {
+  const body = btn.closest('.cms-card-editor').querySelector('.cms-card-body');
+  body.classList.toggle('collapsed');
+  btn.textContent = body.classList.contains('collapsed') ? '+' : '−';
+}
+
+// ════════════════════════════════════════
+// CMS AUTH
+// ════════════════════════════════════════
+function openCmsLogin() {
+  document.getElementById('cms-login-overlay').classList.add('active');
+  setTimeout(() => document.getElementById('cms-username').focus(), 100);
+}
+function closeCmsLogin() {
+  document.getElementById('cms-login-overlay').classList.remove('active');
+  document.getElementById('cms-login-error').style.display = 'none';
+}
+function attemptLogin() {
+  const u = document.getElementById('cms-username').value.trim();
+  const p = document.getElementById('cms-password').value;
+  const pwd = content.password || DEFAULT.password;
+  if (u === 'admin' && p === pwd) {
+    closeCmsLogin();
+    openCmsPanel();
+  } else {
+    document.getElementById('cms-login-error').style.display = 'block';
+  }
+}
+document.getElementById('cms-password').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
+
+// ════════════════════════════════════════
+// CMS PANEL
+// ════════════════════════════════════════
+function openCmsPanel() {
+  populateCmsForms();
+  document.getElementById('cms-panel').classList.add('open');
+  document.getElementById('cms-edit-badge').classList.add('show');
+}
+function closeCmsPanel() {
+  document.getElementById('cms-panel').classList.remove('open');
+  document.getElementById('cms-edit-badge').classList.remove('show');
+}
+function switchTab(name) {
+  document.querySelectorAll('.cms-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.cms-tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ════════════════════════════════════════
+// SCROLL REVEAL
+// ════════════════════════════════════════
+let revealObserver;
+function reObserve() {
+  if (revealObserver) revealObserver.disconnect();
+  revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(r => revealObserver.observe(r));
+}
+
+// ════════════════════════════════════════
+// CURSOR
+// ════════════════════════════════════════
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+  setTimeout(() => { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }, 60);
+});
+
+// ════════════════════════════════════════
+// CONTACT FORM
+// ════════════════════════════════════════
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = 'Inquiry Received ✓'; btn.style.background = '#4a8c6a'; btn.style.color = '#fff';
+  setTimeout(() => { btn.textContent = 'Submit Inquiry →'; btn.style.background = ''; btn.style.color = ''; e.target.reset(); }, 4000);
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+loadContent();
+renderSite();
+reObserve();
+</script>
+</body>
+</html>
